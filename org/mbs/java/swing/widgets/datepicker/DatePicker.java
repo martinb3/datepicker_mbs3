@@ -87,10 +87,10 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			GridBagLayout thisLayout = new GridBagLayout();
 			thisLayout.rowWeights = new double[] { 0.0, 0.0, 0.0 };
 			thisLayout.rowHeights = new int[] { 33, 149, 29 };
-			thisLayout.columnWeights = new double[] { 0.0, 0.0, 0.0 };
-			thisLayout.columnWidths = new int[] { 27, 194, 38 };
+			thisLayout.columnWeights = new double[] {0.0, 0.0, 0.0};
+			thisLayout.columnWidths = new int[] {36, 175, 38};
 			this.setLayout(thisLayout);
-			this.setPreferredSize(new java.awt.Dimension(299, 215));
+			this.setPreferredSize(new java.awt.Dimension(258, 201));
 			this.setBackground(new java.awt.Color(255,255,255));
 			{
 				jButton1 = new JButton();
@@ -134,12 +134,18 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			{
 				jScrollPane1 = new JScrollPane();
 				this.add(jScrollPane1, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+				jScrollPane1.setBackground(new java.awt.Color(255,255,255));
+				jScrollPane1.setWheelScrollingEnabled(false);
+				jScrollPane1.setPreferredSize(new java.awt.Dimension(253, 149));
 				{
 
 					jTable1 = new JTable();
 					jScrollPane1.setViewportView(jTable1);
-					jTable1.setRowSelectionAllowed(false);
 					jTable1.setCellSelectionEnabled(true);
+					jTable1.setShowHorizontalLines(false);
+					jTable1.setShowVerticalLines(false);
+					jTable1.setRequestFocusEnabled(false);
+					jTable1.setRowSelectionAllowed(false);
 					createAndSetNewTableModel();
 				}
 			}
@@ -149,31 +155,60 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 	}
 
 	public void createAndSetNewTableModel() {
+		// make a copy of the current calendar object being displayed
 		Calendar calendar = (PickerCalendar)currentCalendar.clone(); 
-		calendar.set(Calendar.DAY_OF_MONTH, 1);
-		jLabel1.setText(String.format("%1$tB %1$tY", calendar));
 		
-		TableModel jTable1Model = new DefaultTableModel(new String[] {
-				"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
-				"Friday", "Saturday" }, calendar
-				.getActualMaximum(Calendar.WEEK_OF_MONTH));
+		// our new copy starts at the first of the month
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		calendar.setFirstDayOfWeek(Calendar.SUNDAY);
+		
+		// make a second copy of the calendar used for day names
+		Calendar names = (Calendar)calendar.clone();
+		
+		// set the month name & year at the top
+		jLabel1.setText(String.format("%1$tB %1$tY", names));
+		
+		// put the days of the week in a String array
+		String [] daysOfWeek = new String[names.getActualMaximum(Calendar.DAY_OF_WEEK)];
+		names.set(Calendar.DAY_OF_WEEK, names.getFirstDayOfWeek()); int count = 0;
+		for(int i = names.getActualMinimum(Calendar.DAY_OF_WEEK); i <= names.getActualMaximum(Calendar.DAY_OF_WEEK); i++)
+		{
+			daysOfWeek[count] = String.format("%1$ta", names);
+			names.add(Calendar.DAY_OF_MONTH, 1); count++;
+		}
+		
+		// create the table data model
+		TableModel jTable1Model = new DefaultTableModel(daysOfWeek , calendar.getActualMaximum(Calendar.WEEK_OF_MONTH));
 
+		// configure a counter for the dimensions of the table
 		int cols = jTable1Model.getColumnCount();
 		int rowcount = 0;
-		int colcount = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+		int colcount = 0;
 
-		// for (int i = 1; i < calendar.get(Calendar.DAY_OF_WEEK); i++) {
-		// jTable1Model.setValueAt("x", 0, i-1);
-		// }
+		// roll the calendar back to the first day of the week
+		// which will probably be in the last month
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		while(calendar.get(Calendar.DAY_OF_WEEK) != calendar.getFirstDayOfWeek())
+		{
+			System.out.println("Day of month: " + calendar.get(Calendar.DAY_OF_MONTH) + "=" + calendar.get(Calendar.DAY_OF_WEEK) + " " + calendar.getFirstDayOfWeek() + Calendar.TUESDAY);
+			calendar.add(Calendar.DAY_OF_YEAR, -1);
+		}
 
+		// set last month's days until we get back up to the
+		// first day of this month
+		while(calendar.get(Calendar.DAY_OF_MONTH) != calendar.getMinimum(Calendar.DAY_OF_MONTH)) {
+			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount++);
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+			
+		}
+
+		// while we're in the same month, roll it forward and
+		// fill in the days on the table
 		int month = calendar.get(Calendar.MONTH);
-
 		while (month == calendar.get(Calendar.MONTH)) {
-			jTable1Model.setValueAt(calendar.clone(), //String.format("%1$te", calendar),
-					rowcount, colcount);
+			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount++);
 
 			calendar.add(Calendar.DAY_OF_YEAR, 1);
-			colcount++;
 			if (calendar.get(Calendar.DAY_OF_WEEK) == calendar
 					.getFirstDayOfWeek())
 				rowcount++;
@@ -222,7 +257,7 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 	private void jButton3ActionPerformed(ActionEvent evt) {
 		System.out.println("jButton3.actionPerformed, event=" + evt);
 		this.currentCalendar = null;
-		this.currentCalendar = new GregorianCalendar();
+		this.currentCalendar = new PickerCalendar();
 		createAndSetNewTableModel();
 	}
 
@@ -235,7 +270,7 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			p.hide();
 			p = null;
 		}
-		p = pf.getPopup(parent, this, parent.getX(), parent.getY());
+		p = pf.getPopup(parent, this, parent.getX() + (parent.getWidth()/2), parent.getY() + (parent.getHeight()/2));
 		p.show();
 
 	}

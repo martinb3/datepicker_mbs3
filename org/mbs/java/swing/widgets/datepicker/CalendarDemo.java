@@ -22,7 +22,7 @@ public class CalendarDemo {
 	public static void main(String[] args) {
 		GregorianCalendar calendar = new GregorianCalendar();
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
-		calendar.setFirstDayOfWeek(Calendar.WEDNESDAY);
+		calendar.setFirstDayOfWeek(Calendar.SUNDAY);
 		
 		calendar.set(Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
 		for(int i = 0; i < 7; i++)
