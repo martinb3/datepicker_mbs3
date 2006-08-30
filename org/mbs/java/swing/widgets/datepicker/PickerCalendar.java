@@ -24,4 +24,9 @@ public class PickerCalendar extends GregorianCalendar {
 		return String.format("%1$te", (java.util.Calendar)this);
 	}
 	
+	public String tooltipString()
+	{
+		return String.format("%1$tA, %1$tB %1$te, %1$tY", (java.util.Calendar)this);
+	}
+	
 }

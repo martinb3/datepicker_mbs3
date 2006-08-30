@@ -79,23 +79,24 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 	public DatePicker() {
 		super();
 		initGUI();
+		createAndSetNewTableModel();
 	}
 
 	private void initGUI() {
 		try {
 
 			GridBagLayout thisLayout = new GridBagLayout();
-			thisLayout.rowWeights = new double[] { 0.0, 0.0, 0.0 };
-			thisLayout.rowHeights = new int[] { 33, 149, 29 };
-			thisLayout.columnWeights = new double[] {0.0, 0.0, 0.0};
-			thisLayout.columnWidths = new int[] {36, 175, 38};
+			thisLayout.rowWeights = new double[] {0.0, 0.0, 0.0};
+			thisLayout.rowHeights = new int[] {21, 109, 27};
+			thisLayout.columnWeights = new double[] {5.0, 10.0, 5.0};
+			thisLayout.columnWidths = new int[] {38, 175, 38};
 			this.setLayout(thisLayout);
-			this.setPreferredSize(new java.awt.Dimension(258, 201));
+			this.setPreferredSize(new java.awt.Dimension(258, 155));
 			this.setBackground(new java.awt.Color(255,255,255));
 			{
 				jButton1 = new JButton();
-				this.add(jButton1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-				jButton1.setText("<-");
+				this.add(jButton1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+				jButton1.setText("<");
 				jButton1.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						jButton1ActionPerformed(evt);
@@ -104,10 +105,8 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			}
 			{
 				jButton2 = new JButton();
-				this.add(jButton2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-						GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-						new Insets(0, 0, 0, 0), 0, 0));
-				jButton2.setText("->");
+				this.add(jButton2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+				jButton2.setText(">");
 				jButton2.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
 						jButton2ActionPerformed(evt);
@@ -123,7 +122,7 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			}
 			{
 				jButton3 = new JButton();
-				this.add(jButton3, new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+				this.add(jButton3, new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 				jButton3.setText("Today");
 				jButton3.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent evt) {
@@ -134,19 +133,25 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			{
 				jScrollPane1 = new JScrollPane();
 				this.add(jScrollPane1, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-				jScrollPane1.setBackground(new java.awt.Color(255,255,255));
+				jScrollPane1.setBackground(new java.awt.Color(0,255,255));
 				jScrollPane1.setWheelScrollingEnabled(false);
 				jScrollPane1.setPreferredSize(new java.awt.Dimension(253, 149));
+				jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+				jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 				{
 
-					jTable1 = new JTable();
+					jTable1 = new JTable(){
+						public boolean isCellEditable(int row, int column)
+						{
+							return false;
+						}
+					};
 					jScrollPane1.setViewportView(jTable1);
-					jTable1.setCellSelectionEnabled(true);
 					jTable1.setShowHorizontalLines(false);
 					jTable1.setShowVerticalLines(false);
 					jTable1.setRequestFocusEnabled(false);
 					jTable1.setRowSelectionAllowed(false);
-					createAndSetNewTableModel();
+					jTable1.setCellSelectionEnabled(true);
 				}
 			}
 		} catch (Exception e) {
@@ -184,51 +189,88 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 		int cols = jTable1Model.getColumnCount();
 		int rowcount = 0;
 		int colcount = 0;
-
+		int month = calendar.get(Calendar.MONTH);
+		
 		// roll the calendar back to the first day of the week
 		// which will probably be in the last month
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
 		while(calendar.get(Calendar.DAY_OF_WEEK) != calendar.getFirstDayOfWeek())
 		{
-			System.out.println("Day of month: " + calendar.get(Calendar.DAY_OF_MONTH) + "=" + calendar.get(Calendar.DAY_OF_WEEK) + " " + calendar.getFirstDayOfWeek() + Calendar.TUESDAY);
 			calendar.add(Calendar.DAY_OF_YEAR, -1);
 		}
 
 		// set last month's days until we get back up to the
 		// first day of this month
 		while(calendar.get(Calendar.DAY_OF_MONTH) != calendar.getMinimum(Calendar.DAY_OF_MONTH)) {
-			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount++);
+			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount);
 			calendar.add(Calendar.DAY_OF_YEAR, 1);
-			
+			colcount++;
 		}
 
 		// while we're in the same month, roll it forward and
 		// fill in the days on the table
-		int month = calendar.get(Calendar.MONTH);
 		while (month == calendar.get(Calendar.MONTH)) {
 			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount++);
 
-			calendar.add(Calendar.DAY_OF_YEAR, 1);
-			if (calendar.get(Calendar.DAY_OF_WEEK) == calendar
-					.getFirstDayOfWeek())
-				rowcount++;
 
 			if (colcount >= cols)
 				colcount -= cols;
+			System.out.println("Day of month: " + calendar.get(Calendar.DAY_OF_MONTH) + ", colct =" + colcount);
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+			if (calendar.get(Calendar.DAY_OF_WEEK) == calendar.getFirstDayOfWeek())
+				rowcount++;
 
 		}
+
+		// fill in up to the first day of the next week
+		while(calendar.get(Calendar.DAY_OF_WEEK) != calendar.getFirstDayOfWeek()) {
+			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount);
+			calendar.add(Calendar.DAY_OF_YEAR, 1);
+			colcount++;
+		}
+
 		
 		jTable1.setModel(jTable1Model);
 		jTable1.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		final JTable tbl = jTable1; 
+		jTable1.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		for(int i = 0; i < jTable1.getColumnCount(); i++)
+		{
+			jTable1.getColumnModel().getColumn(i).setCellRenderer(new DateCellRenderer((Calendar)currentCalendar.clone()));
+		}
+		
+		final JTable tbl = jTable1;
+		
+		// TODO: Add a column selection model here with jTable1.getColumnModel().getSelectionModel()
 		jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent lse)
 			{
-				int r = jTable1.getSelectedRow();
-				int c = jTable1.getSelectedColumn();
+				if (lse.getValueIsAdjusting()) return;
+				ListSelectionModel lsm = (ListSelectionModel)lse.getSource();
 				
-				if(r == -1 || c == -1)
+				int r = jTable1.getSelectedRow();
+				int c = lsm.getMinSelectionIndex();
+				
+				if(r == -1 || c == -1 || lsm.isSelectionEmpty())
+				{
+					System.out.println("Coords were bad (" + r + "," + c + ") or selection was empty");
 					return;
+				}
+				
+				if(tbl.getValueAt(r, c).getClass().isAssignableFrom(Calendar.class))
+				{
+					System.out.println("Class was bad (" + tbl.getValueAt(r, c).getClass());
+					return;
+				}
+				
+				if(((Calendar)tbl.getValueAt(r, c)).get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH))
+				{
+					jTable1.getSelectionModel().clearSelection();
+					System.out.println("Denied selection");
+					return;
+				} else {
+					System.out.println("Allowed selection, Table month is " + ((Calendar)tbl.getValueAt(r, c)).get(Calendar.MONTH) + " and allowed month is " + currentCalendar.get(Calendar.MONTH));
+				}
 				
 				firePropertyChange("Calendar", null, tbl.getValueAt(r, c));
 				if(p != null)
