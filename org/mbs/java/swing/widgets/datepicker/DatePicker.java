@@ -60,6 +60,8 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 	private JLabel jLabel1;
 
 	private JTable jTable1;
+	private int selectedRow = -1;
+	private int selectedColumn = -1;
 	
 	Popup p;
 	
@@ -91,7 +93,7 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			thisLayout.columnWeights = new double[] {5.0, 10.0, 5.0};
 			thisLayout.columnWidths = new int[] {38, 175, 38};
 			this.setLayout(thisLayout);
-			this.setPreferredSize(new java.awt.Dimension(258, 155));
+			this.setPreferredSize(new java.awt.Dimension(258, 159));
 			this.setBackground(new java.awt.Color(255,255,255));
 			{
 				jButton1 = new JButton();
@@ -191,6 +193,9 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 		int colcount = 0;
 		int month = calendar.get(Calendar.MONTH);
 		
+		int currentDayRow = -1;
+		int currentDayColumn = -1;
+		
 		// roll the calendar back to the first day of the week
 		// which will probably be in the last month
 		calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -210,12 +215,20 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 		// while we're in the same month, roll it forward and
 		// fill in the days on the table
 		while (month == calendar.get(Calendar.MONTH)) {
-			jTable1Model.setValueAt(calendar.clone(), rowcount, colcount++);
-
-
+			Calendar toInsert = (Calendar)calendar.clone();
+			jTable1Model.setValueAt(toInsert, rowcount, colcount);
+			
+			if(toInsert.equals(currentCalendar))
+			{
+				System.out.println("EQUALS at " + rowcount + "," + colcount);
+				currentDayRow = rowcount;
+				currentDayColumn = colcount;
+			}
+			
+			colcount++;
 			if (colcount >= cols)
 				colcount -= cols;
-			System.out.println("Day of month: " + calendar.get(Calendar.DAY_OF_MONTH) + ", colct =" + colcount);
+			//System.out.println("Day of month: " + calendar.get(Calendar.DAY_OF_MONTH) + ", colct =" + colcount);
 			calendar.add(Calendar.DAY_OF_YEAR, 1);
 			if (calendar.get(Calendar.DAY_OF_WEEK) == calendar.getFirstDayOfWeek())
 				rowcount++;
@@ -239,48 +252,51 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			jTable1.getColumnModel().getColumn(i).setCellRenderer(new DateCellRenderer((Calendar)currentCalendar.clone()));
 		}
 		
-		final JTable tbl = jTable1;
-		
-		// TODO: Add a column selection model here with jTable1.getColumnModel().getSelectionModel()
-		jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent lse)
-			{
-				if (lse.getValueIsAdjusting()) return;
-				ListSelectionModel lsm = (ListSelectionModel)lse.getSource();
-				
-				int r = jTable1.getSelectedRow();
-				int c = lsm.getMinSelectionIndex();
-				
-				if(r == -1 || c == -1 || lsm.isSelectionEmpty())
-				{
-					System.out.println("Coords were bad (" + r + "," + c + ") or selection was empty");
-					return;
-				}
-				
-				if(tbl.getValueAt(r, c).getClass().isAssignableFrom(Calendar.class))
-				{
-					System.out.println("Class was bad (" + tbl.getValueAt(r, c).getClass());
-					return;
-				}
-				
-				if(((Calendar)tbl.getValueAt(r, c)).get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH))
-				{
-					jTable1.getSelectionModel().clearSelection();
-					System.out.println("Denied selection");
-					return;
-				} else {
-					System.out.println("Allowed selection, Table month is " + ((Calendar)tbl.getValueAt(r, c)).get(Calendar.MONTH) + " and allowed month is " + currentCalendar.get(Calendar.MONTH));
-				}
-				
-				firePropertyChange("Calendar", null, tbl.getValueAt(r, c));
-				if(p != null)
-				{
-					p.hide();
-					p = null;
-				}
-			}
+		// set our focus to the current day, if we saw it on the calendar
+		if(currentDayRow != 1 && currentDayColumn != -1)
+		{
+			jTable1.getColumnModel().getSelectionModel().setSelectionInterval(currentDayColumn, currentDayColumn);
+			jTable1.getSelectionModel().setSelectionInterval(currentDayRow, currentDayRow);
 		}
-		);
+		
+		jTable1.getColumnModel().getSelectionModel().addListSelectionListener(
+				new ListSelectionListener() {
+					public void valueChanged(ListSelectionEvent lse) {
+						if (lse.getValueIsAdjusting()) return;
+
+						ListSelectionModel lsm = (ListSelectionModel)lse.getSource();
+						if(lsm.isSelectionEmpty())
+							selectedColumn = -1;
+						else
+							selectedColumn = lsm.getMinSelectionIndex();
+						
+						System.out.println("jTable1.getSelectionModel().getMinSelectionIndex()=" + jTable1.getSelectionModel().getMinSelectionIndex());
+						System.out.println("jTable1.getSelectionModel().getValueIsAdjusting()=" + jTable1.getSelectionModel().getValueIsAdjusting());
+						
+						//if(selectedColumn != -1 && selectedRow != -1)
+						//	myValueChanged();
+					}
+				}
+				);
+		jTable1.getSelectionModel().addListSelectionListener(
+				new ListSelectionListener() {
+					public void valueChanged(ListSelectionEvent lse) {
+						if (lse.getValueIsAdjusting()) return;
+						
+						ListSelectionModel lsm = (ListSelectionModel)lse.getSource();
+						if(lsm.isSelectionEmpty())
+							selectedRow = -1;
+						else
+							selectedRow = lsm.getMinSelectionIndex();
+
+						System.out.println("jTable1.getColumnModel().getSelectionModel().getMinSelectionIndex()=" + jTable1.getColumnModel().getSelectionModel().getMinSelectionIndex());
+						System.out.println("jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting()=" + jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting());
+						
+						//if(selectedColumn != -1 && selectedRow != -1)
+						//	myValueChanged();
+					}
+				}
+				);
 		jTable1.invalidate();
 	}
 	
@@ -316,4 +332,30 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 		p.show();
 
 	}
+	
+	public void myValueChanged()
+	{
+		
+		System.out.println("Row: " + jTable1.getSelectedRow() + ", Col: " + jTable1.getSelectedColumn());
+		//System.out.println("Row: " + selectedRow + ", Col: " + selectedColumn);
+		if(true) return;
+		
+	
+		if(((Calendar)jTable1.getValueAt(selectedRow, selectedColumn)).get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH))
+		{
+			jTable1.getSelectionModel().clearSelection();
+			System.out.println("Denied selection");
+			return;
+		} else {
+			System.out.println("Allowed selection, Table month is " + ((Calendar)jTable1.getValueAt(selectedRow, selectedColumn)).get(Calendar.MONTH) + " and allowed month is " + currentCalendar.get(Calendar.MONTH));
+		}
+		
+		firePropertyChange("Calendar", null, jTable1.getValueAt(selectedRow, selectedColumn));
+		if(p != null)
+		{
+			p.hide();
+			p = null;
+		}
+	}
+
 }
