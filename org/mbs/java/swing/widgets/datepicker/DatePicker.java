@@ -80,20 +80,22 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 
 	public DatePicker() {
 		super();
+		//currentCalendar.set(Calendar.MONTH, Calendar.DECEMBER);
 		initGUI();
 		createAndSetNewTableModel();
 	}
 
 	private void initGUI() {
 		try {
-
+			int rowFactor = 20;
+			int colFactor = 15;
 			GridBagLayout thisLayout = new GridBagLayout();
 			thisLayout.rowWeights = new double[] {0.0, 0.0, 0.0};
-			thisLayout.rowHeights = new int[] {21, 109, 27};
+			thisLayout.rowHeights = new int[] {25, 6*rowFactor, 25};
 			thisLayout.columnWeights = new double[] {5.0, 10.0, 5.0};
-			thisLayout.columnWidths = new int[] {38, 175, 38};
+			thisLayout.columnWidths = new int[] {40, 175, 40};
 			this.setLayout(thisLayout);
-			this.setPreferredSize(new java.awt.Dimension(258, 159));
+			//this.setPreferredSize(new java.awt.Dimension(258, 159));
 			this.setBackground(new java.awt.Color(255,255,255));
 			{
 				jButton1 = new JButton();
@@ -135,9 +137,9 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			{
 				jScrollPane1 = new JScrollPane();
 				this.add(jScrollPane1, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-				jScrollPane1.setBackground(new java.awt.Color(0,255,255));
+				jScrollPane1.setBackground(new java.awt.Color(255,255,255));
 				jScrollPane1.setWheelScrollingEnabled(false);
-				jScrollPane1.setPreferredSize(new java.awt.Dimension(253, 149));
+				jScrollPane1.setPreferredSize(new java.awt.Dimension(currentCalendar.getActualMaximum(Calendar.DAY_OF_WEEK)*colFactor, 6*rowFactor));
 				jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 				jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 				{
@@ -149,12 +151,27 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 						}
 					};
 					jScrollPane1.setViewportView(jTable1);
+					jTable1.getParent().setBackground(new java.awt.Color(255,255,255));
+					
+					jTable1.setPreferredScrollableViewportSize(jTable1.getPreferredSize());
 					jTable1.setShowHorizontalLines(false);
 					jTable1.setShowVerticalLines(false);
 					jTable1.setRequestFocusEnabled(false);
 					jTable1.setRowSelectionAllowed(false);
 					jTable1.setCellSelectionEnabled(true);
+					
+					
 				}
+				
+				
+				Dimension topButtonDimensions = jButton1.getPreferredSize();
+				Dimension bottomButtonDimensions = jButton3.getPreferredSize();
+				Dimension scrollPaneDimensions = jScrollPane1.getPreferredSize();
+				
+				int h = topButtonDimensions.height + bottomButtonDimensions.height + scrollPaneDimensions.height; 
+				int w = 2*topButtonDimensions.width + bottomButtonDimensions.width + scrollPaneDimensions.width;
+				
+				this.setPreferredSize(new Dimension(w,h));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -262,26 +279,31 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 		jTable1.getColumnModel().getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 					public void valueChanged(ListSelectionEvent lse) {
-						if (lse.getValueIsAdjusting()) return;
+						if (lse.getValueIsAdjusting() || jTable1.getSelectionModel().getValueIsAdjusting() || jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting()) 
+							return;
 
 						ListSelectionModel lsm = (ListSelectionModel)lse.getSource();
 						if(lsm.isSelectionEmpty())
 							selectedColumn = -1;
 						else
 							selectedColumn = lsm.getMinSelectionIndex();
+
+						System.out.println("Column selection event! " + System.currentTimeMillis());
+						System.out.println("\tjTable1.getSelectionModel().getMinSelectionIndex()=" + jTable1.getSelectionModel().getMinSelectionIndex() + ", row adjusting = " + jTable1.getSelectionModel().getValueIsAdjusting());
+						System.out.println("\tjTable1.getColumnModel().getSelectionModel().getMinSelectionIndex()=" + jTable1.getColumnModel().getSelectionModel().getMinSelectionIndex() + ", column adjusting = " + jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting());
+						System.out.println("\tListSelectionEvent.adjusting is " + lse.getValueIsAdjusting());
 						
-						System.out.println("jTable1.getSelectionModel().getMinSelectionIndex()=" + jTable1.getSelectionModel().getMinSelectionIndex());
-						System.out.println("jTable1.getSelectionModel().getValueIsAdjusting()=" + jTable1.getSelectionModel().getValueIsAdjusting());
-						
-						//if(selectedColumn != -1 && selectedRow != -1)
+						//if(selectedColumn != -1 && selectedRow != -1 && !jTable1.getSelectionModel().getValueIsAdjusting())
 						//	myValueChanged();
+						
 					}
 				}
 				);
 		jTable1.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 					public void valueChanged(ListSelectionEvent lse) {
-						if (lse.getValueIsAdjusting()) return;
+						if (lse.getValueIsAdjusting() || jTable1.getSelectionModel().getValueIsAdjusting() || jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting()) 
+							return;
 						
 						ListSelectionModel lsm = (ListSelectionModel)lse.getSource();
 						if(lsm.isSelectionEmpty())
@@ -289,8 +311,12 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 						else
 							selectedRow = lsm.getMinSelectionIndex();
 
-						System.out.println("jTable1.getColumnModel().getSelectionModel().getMinSelectionIndex()=" + jTable1.getColumnModel().getSelectionModel().getMinSelectionIndex());
-						System.out.println("jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting()=" + jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting());
+						System.out.println("Row selection event! " + System.currentTimeMillis());
+						System.out.println("\tjTable1.getSelectionModel().getMinSelectionIndex()=" + jTable1.getSelectionModel().getMinSelectionIndex() + ", row adjusting = " + jTable1.getSelectionModel().getValueIsAdjusting());
+						System.out.println("\tjTable1.getColumnModel().getSelectionModel().getMinSelectionIndex()=" + jTable1.getColumnModel().getSelectionModel().getMinSelectionIndex() + ", column adjusting = " + jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting());
+						System.out.println("\tListSelectionEvent.adjusting is " + lse.getValueIsAdjusting());
+						//if(jTable1.getColumnModel().getSelectionModel().getValueIsAdjusting())
+						//	return;
 						
 						//if(selectedColumn != -1 && selectedRow != -1)
 						//	myValueChanged();
@@ -336,7 +362,8 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 	public void myValueChanged()
 	{
 		
-		System.out.println("Row: " + jTable1.getSelectedRow() + ", Col: " + jTable1.getSelectedColumn());
+		System.out.println("Value changed!");
+		System.out.println("\tRow: " + jTable1.getSelectedRow() + ", Col: " + jTable1.getSelectedColumn());
 		//System.out.println("Row: " + selectedRow + ", Col: " + selectedColumn);
 		if(true) return;
 		
