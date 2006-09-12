@@ -14,10 +14,7 @@
  *  limitations under the License.
  */
 package org.mbs.java.swing.widgets.datepicker;
-import java.awt.BorderLayout;
 import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
@@ -89,6 +86,7 @@ public class DatePickerDemo extends javax.swing.JFrame {
 			thisLayout.setColumns(3);
 			thisLayout.setRows(2);
 			getContentPane().setLayout(thisLayout);
+			this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			{
 				jTextField1 = new JTextField();
 				getContentPane().add(jTextField1);
@@ -195,11 +193,11 @@ public class DatePickerDemo extends javax.swing.JFrame {
 	}
 	
 	private void jButton1MouseClicked(MouseEvent evt) {
-		System.out.println("jButton1.mouseClicked, event=" + evt);
+		//System.out.println("jButton1.mouseClicked, event=" + evt);
 		dp.addPropertyChangeListener("Calendar", new java.beans.PropertyChangeListener() {
 			public void propertyChange(java.beans.PropertyChangeEvent pce)
 			{
-				System.out.println(pce);
+				//System.out.println(pce);
 				Calendar cal = (Calendar)pce.getNewValue();
 				jTextField1.setText(String.format("%1$tD", cal));
 			}
