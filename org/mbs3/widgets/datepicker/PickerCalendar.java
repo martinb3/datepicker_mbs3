@@ -13,10 +13,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.mbs.java.swing.widgets.datepicker;
+package org.mbs3.widgets.datepicker;
 
 import java.util.GregorianCalendar;
 
+/*
+ * This class barely extends the Gregorian calendar so that toString()
+ * and tooltipString() methods return something useful for this component
+ */
 public class PickerCalendar extends GregorianCalendar {
 
 	public String toString()

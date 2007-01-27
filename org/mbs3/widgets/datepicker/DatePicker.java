@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.mbs.java.swing.widgets.datepicker;
+package org.mbs3.widgets.datepicker;
 
 import java.io.Serializable;
 
@@ -34,16 +34,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.*;
 
-/**
- * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
- * Builder, which is free for non-commercial use. If Jigloo is being used
- * commercially (ie, by a corporation, company or business for any purpose
- * whatever) then you should purchase a license for each developer using Jigloo.
- * Please visit www.cloudgarden.com for details. Use of Jigloo implies
- * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
- * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
- * ANY CORPORATE OR COMMERCIAL PURPOSE.
- */
 public class DatePicker extends javax.swing.JPanel implements Serializable {
 	private JButton jButton1;
 
@@ -57,26 +47,20 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 
 	private JTable jTable1;
 
-	Popup p;
+	private Popup p;
 
 	private Calendar currentCalendar = new PickerCalendar();
 
-	/**
-	 * Auto-generated main method to display this JPanel inside a new JFrame.
-	 */
 	public static void main(String[] args) {
-		// JFrame frame = new JFrame();
-		// frame.getContentPane().add(new DatePicker());
-		// frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		// frame.pack();
-		// frame.setVisible(true);
-		DatePicker dp = new DatePicker();
-		dp.doPop(null);
+		JFrame frame = new JFrame();
+		frame.getContentPane().add(new DatePicker());
+		frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
 	}
 
 	public DatePicker() {
 		super();
-		// currentCalendar.set(Calendar.MONTH, Calendar.DECEMBER);
 		initGUI();
 		createAndSetNewTableModel();
 	}
@@ -256,10 +240,9 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 			jTable1Model.setValueAt(toInsert, rowcount, colcount);
 
 			Calendar now = Calendar.getInstance();
-			if (
-					now.get(Calendar.YEAR) == toInsert.get(Calendar.YEAR) &&
-					now.get(Calendar.DAY_OF_YEAR) == toInsert.get(Calendar.DAY_OF_YEAR)
-					) {
+			if (now.get(Calendar.YEAR) == toInsert.get(Calendar.YEAR)
+					&& now.get(Calendar.DAY_OF_YEAR) == toInsert
+							.get(Calendar.DAY_OF_YEAR)) {
 				currentDayRow = rowcount;
 				currentDayColumn = colcount;
 			}
@@ -304,8 +287,8 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 					currentDayColumn, currentDayColumn);
 			jTable1.getSelectionModel().setSelectionInterval(currentDayRow,
 					currentDayRow);
-			//System.out.println("row" + currentDayRow);
-			//System.out.println("col" + currentDayColumn);
+			// System.out.println("row" + currentDayRow);
+			// System.out.println("col" + currentDayColumn);
 		}
 
 		class MyMouseListener implements java.awt.event.MouseListener {
@@ -369,8 +352,10 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 		int y = 0;
 
 		if (parent != null) {
-			x = (int) parent.getLocationOnScreen().getX() + (parent.getWidth() / 2);
-			y = (int) parent.getLocationOnScreen().getY() + (parent.getHeight() / 2);
+			x = (int) parent.getLocationOnScreen().getX()
+					+ (parent.getWidth() / 2);
+			y = (int) parent.getLocationOnScreen().getY()
+					+ (parent.getHeight() / 2);
 		}
 
 		p = pf.getPopup(parent, this, x, y);
@@ -380,15 +365,9 @@ public class DatePicker extends javax.swing.JPanel implements Serializable {
 
 	public void myValueChanged(int row, int col) {
 
-		if (((Calendar) jTable1.getValueAt(row, col)).get(Calendar.MONTH) != currentCalendar
-				.get(Calendar.MONTH)) {
+		if (((Calendar) jTable1.getValueAt(row, col)).get(Calendar.MONTH) != currentCalendar.get(Calendar.MONTH)) {
 			jTable1.getSelectionModel().clearSelection();
-			// System.out.println("Denied selection");
 			return;
-			// } else {
-			// System.out.println("Allowed selection, Table month is " +
-			// ((Calendar)jTable1.getValueAt(row, col)).get(Calendar.MONTH) + "
-			// and allowed month is " + currentCalendar.get(Calendar.MONTH));
 		}
 
 		firePropertyChange("Calendar", null, jTable1.getValueAt(row, col));

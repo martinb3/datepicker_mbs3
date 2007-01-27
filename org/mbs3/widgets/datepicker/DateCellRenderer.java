@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.mbs.java.swing.widgets.datepicker;
+package org.mbs3.widgets.datepicker;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import java.util.Calendar;
