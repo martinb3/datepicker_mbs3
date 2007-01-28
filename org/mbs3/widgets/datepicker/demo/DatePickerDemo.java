@@ -29,15 +29,12 @@ import javax.swing.JMenuBar;
 import java.util.*;
 import javax.swing.*;
 
-import org.mbs3.widgets.datepicker.DatePicker;
+import org.mbs3.widgets.datepicker.*;
 
 public class DatePickerDemo extends javax.swing.JFrame {
 
-	private JButton jButton1;
-
-	private JTextField jTextField1;
-
 	private DatePicker dp = new DatePicker();
+	private JTextCombo cmb;
 
 	/**
 	 * Auto-generated main method to display this JFrame
@@ -54,46 +51,39 @@ public class DatePickerDemo extends javax.swing.JFrame {
 
 	private void initGUI() {
 		try {
-			GridLayout thisLayout = new GridLayout(2, 3);
+			GridLayout thisLayout = new GridLayout(3,3);
 			thisLayout.setHgap(5);
 			thisLayout.setVgap(5);
 			thisLayout.setColumns(3);
-			thisLayout.setRows(2);
+			thisLayout.setRows(3);
 			getContentPane().setLayout(thisLayout);
 			this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
-			jTextField1 = new JTextField();
-			getContentPane().add(jTextField1);
-			jTextField1.setText("jTextField1");
-			jTextField1.setPreferredSize(new java.awt.Dimension(160, 77));
+			
+			cmb = new JTextCombo();
+			getContentPane().add(cmb);
 
-			jButton1 = new JButton();
-			getContentPane().add(jButton1);
-			jButton1.setText("jButton1");
-			jButton1.setPreferredSize(new java.awt.Dimension(392, 23));
-			jButton1.addMouseListener(new MouseAdapter() {
+			cmb.getButton().addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent evt) {
 					jButton1MouseClicked(evt);
 				}
 			});
-
-			this.setSize(227, 150);
+			this.setSize(new java.awt.Dimension(100,100));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void jButton1MouseClicked(MouseEvent evt) {
-		// System.out.println("jButton1.mouseClicked, event=" + evt);
 		dp.addPropertyChangeListener("Calendar",
 				new java.beans.PropertyChangeListener() {
 					public void propertyChange(
 							java.beans.PropertyChangeEvent pce) {
 						// System.out.println(pce);
 						Calendar cal = (Calendar) pce.getNewValue();
-						jTextField1.setText(String.format("%1$tD", cal));
+						cmb.getTextField().setText(String.format("%1$tD", cal));
 					}
 				});
-		dp.doPop(jButton1);
+		dp.doPop(cmb.getButton());
 	}
 }
